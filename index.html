@@ -3,163 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>通用國考測驗系統</title>
+    <title>國考全科目練習系統</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
-        :root { --primary: #4a90e2; --bg: #f0f2f5; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        
-        /* 檔案上傳區 */
-        .config-panel { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
-        .file-input-group { text-align: left; margin: 15px 0; }
-        input[type="file"] { width: 100%; padding: 10px; margin-top: 5px; border: 1px dashed #ccc; border-radius: 8px; }
+        :root { --primary: #4a90e2; --bg: #f5f7fa; }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 550px; }
+        .hidden { display: none; }
         
         /* Flip-board Module */
-        #quiz-ui { display: none; width: 100%; max-width: 650px; }
-        .flip-card { height: 500px; perspective: 1000px; cursor: pointer; margin: 20px 0; }
+        .quiz-box { width: 100%; max-width: 600px; margin-top: 20px; }
+        .card { height: 480px; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        .flip-card.flipped .card-inner { transform: rotateY(180deg); }
-        .card-front, .card-back { 
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .front, .back { 
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            background: white; border-radius: 20px; padding: 35px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto;
+            border-radius: 20px; padding: 30px; box-sizing: border-box; overflow-y: auto; background: white;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
-        .card-back { transform: rotateY(180deg); background: #e3f2fd; justify-content: center; text-align: center; color: var(--primary); }
+        .back { transform: rotateY(180deg); background: #f0f7ff; color: var(--primary); display: flex; flex-direction: column; justify-content: center; text-align: center; }
         
-        .q-text { font-size: 1.15rem; line-height: 1.8; color: #333; }
-        .opt-line { display: block; margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 6px; }
-        .controls { display: flex; justify-content: space-between; align-items: center; }
-        button { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button:hover { opacity: 0.9; transform: scale(1.02); }
+        .q-header { font-weight: bold; color: var(--primary); font-size: 1.2em; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .q-body { line-height: 1.8; font-size: 1.05em; text-align: justify; }
+        .opt { display: block; background: #f9f9f9; margin: 8px 0; padding: 10px; border-radius: 6px; border-left: 4px solid #ddd; }
+        
+        .footer-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 600px; margin-top: 20px; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #status { color: #666; font-size: 0.9em; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="setup" class="config-panel">
-        <h2 style="color: var(--primary);">國考測驗產成器</h2>
-        <p style="color: #666;">支援所有學科 PDF</p>
-        
-        <div class="file-input-group">
-            <label><b>1. 上傳試題 PDF</b></label>
-            <input type="file" id="qFile" accept=".pdf">
+    <div id="setup" class="panel">
+        <h2 style="margin-top:0">國考萬用練習器</h2>
+        <p>適用於所有學科 PDF</p>
+        <div style="margin:15px 0">
+            <label>1. 試題檔：</label><input type="file" id="qFile" accept=".pdf" style="display:block; margin:10px 0">
+            <label>2. 答案檔：</label><input type="file" id="aFile" accept=".pdf" style="display:block; margin:10px 0">
         </div>
-        
-        <div class="file-input-group">
-            <label><b>2. 上傳答案 PDF</b></label>
-            <input type="file" id="aFile" accept=".pdf">
-        </div>
-        
-        <button id="startBtn" onclick="runLoader()" style="width: 100%; margin-top: 10px;">讀取檔案並練習</button>
-        <div id="log" style="font-size: 12px; color: #999; margin-top: 10px;"></div>
+        <button onclick="process()" style="width:100%">解析 PDF 並開始</button>
+        <p id="msg" style="color:#d9534f; font-size:0.85em; margin-top:10px"></p>
     </div>
 
-    <div id="quiz-ui">
-        <div class="controls">
-            <span id="progress-info">題目加載中...</span>
-            <button onclick="reset()">重新上傳</button>
-        </div>
-
-        <div class="flip-card" id="mainCard" onclick="this.classList.toggle('flipped')">
+    <div id="quiz-ui" class="quiz-box hidden">
+        <div id="status"></div>
+        <div class="card" id="mainCard" onclick="this.classList.toggle('flipped')">
             <div class="card-inner">
-                <div class="card-front">
-                    <div id="qContent" class="q-text"></div>
+                <div class="front">
+                    <div id="qHeader" class="q-header"></div>
+                    <div id="qContent" class="q-body"></div>
                 </div>
-                <div class="card-back">
-                    <small>正確答案</small>
-                    <h1 id="ansContent" style="font-size: 5rem; margin: 10px 0;"></h1>
-                    <p>點擊返回題目面</p>
+                <div class="back">
+                    <p>這題的答案是</p>
+                    <h1 id="ansContent" style="font-size: 100px; margin: 20px 0;"></h1>
+                    <p>點擊卡片回到題目</p>
                 </div>
             </div>
         </div>
-
-        <div class="controls">
-            <button onclick="nav(-1)">上一題</button>
-            <button onclick="nav(1)">下一題</button>
+        <div class="footer-nav">
+            <button onclick="move(-1)">上一題</button>
+            <button onclick="location.reload()" style="background:#666">重新上傳</button>
+            <button onclick="move(1)">下一題</button>
         </div>
     </div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        let quiz = [];
+        let idx = 0;
 
-        let db = [];
-        let cur = 0;
+        async function process() {
+            const qFile = document.getElementById('qFile').files[0];
+            const aFile = document.getElementById('aFile').files[0];
+            if(!qFile || !aFile) return;
+            document.getElementById('msg').innerText = "系統深度分析中，請稍候...";
 
-        async function runLoader() {
-            const qf = document.getElementById('qFile').files[0];
-            const af = document.getElementById('aFile').files[0];
-            const log = document.getElementById('log');
-            if(!qf || !af) return alert("請選擇兩個檔案");
-
-            log.innerText = "正在分析學科排版...";
-            
             try {
-                const qRaw = await parsePdf(qf);
-                const aRaw = await parsePdf(af);
+                const qText = await getTxt(qFile);
+                const aText = await getTxt(aFile);
 
-                // 1. 答案解析器 (支援多種格式)
+                // 1. 答案擷取
                 const ansMap = {};
-                const aMatches = aRaw.match(/(?:第\s?)?(\d+)\s?題\s*([A-D])/g);
+                const aMatches = aText.match(/第\s*(\d+)\s*題\s*([A-D])/g);
                 aMatches?.forEach(m => {
-                    const bits = m.match(/(\d+).+?([A-D])/);
-                    if(bits) ansMap[bits[1]] = bits[2];
+                    const d = m.match(/(\d+).+?([A-D])/);
+                    if(d) ansMap[d[1]] = d[2];
                 });
 
-                // 2. 題目定位器：尋找測驗開始的邊界
-                let startPoint = qRaw.indexOf("禁止使用電子計算器");
-                if(startPoint === -1) startPoint = qRaw.indexOf("單一選擇題");
-                const cleanText = qRaw.substring(startPoint === -1 ? 0 : startPoint);
+                // 2. 題目切割邏輯 (改良版)
+                // 定位起點
+                const startKeywords = ["禁止使用電子計算器", "單一選擇題", "最適當答案"];
+                let startPos = 0;
+                for(let k of startKeywords) {
+                    let p = qText.indexOf(k);
+                    if(p !== -1) { startPos = p + k.length; break; }
+                }
+                const mainBody = qText.substring(startPos);
 
-                // 3. 通用切題引擎
-                const totalQuestions = Object.keys(ansMap).length || 50;
-                for(let i=1; i <= totalQuestions; i++) {
-                    const regex = new RegExp(`\\s${i}\\s+(.*?)(?=\\s${i+1}\\s+|頁次|$)`, 's');
-                    const found = cleanText.match(regex);
+                // 使用正則表達式尋找「題號 + 空白」作為分隔點
+                for(let i=1; i<=80; i++) {
+                    const cur = new RegExp(`\\s${i}\\s`, 'g');
+                    const next = new RegExp(`\\s${i+1}\\s`, 'g');
+                    let s = mainBody.search(cur);
+                    let e = mainBody.search(next);
                     
-                    if(found) {
-                        let text = found[1].replace(/頁次：\d+-\d+/g, "") // 去除頁碼
-                                         .replace(/代號：\d+/g, "")      // 去除代號
-                                         .replace(/(\([A-D]\))/g, '<span class="opt-line">$1') // 選項換行
-                                         .trim();
-                        
-                        db.push({ id: i, html: text, ans: ansMap[i] || "?" });
+                    if(s !== -1) {
+                        let chunk = (e !== -1) ? mainBody.substring(s, e) : mainBody.substring(s);
+                        // 移除頁碼雜訊與清潔
+                        let clean = chunk.replace(/頁次：\d+-\d+/g, "").replace(/代號：\d+/g, "").trim();
+                        // 移除開頭題號
+                        clean = clean.replace(/^\d+/, "").trim();
+                        // 格式化選項為區塊顯示
+                        clean = clean.replace(/(\([A-D]\)|[A-D]\))/g, '<span class="opt">$1');
+
+                        if(ansMap[i] || i <= Object.keys(ansMap).length) {
+                            quiz.push({ id: i, html: clean, ans: ansMap[i] || "待查" });
+                        }
                     }
                 }
 
-                if(db.length > 0) {
-                    document.getElementById('setup').style.display = 'none';
-                    document.getElementById('quiz-ui').style.display = 'block';
+                if(quiz.length > 0) {
+                    document.getElementById('setup').classList.add('hidden');
+                    document.getElementById('quiz-ui').classList.remove('hidden');
                     show();
                 } else {
-                    log.innerText = "偵測失敗。請確認 PDF 是否為掃描圖檔（需為文字檔）。";
+                    document.getElementById('msg').innerText = "解析失敗。可能 PDF 是掃描圖檔（圖片），無法讀取文字。";
                 }
-            } catch (e) { log.innerText = "解析出錯: " + e.message; }
+            } catch(e) { document.getElementById('msg').innerText = "出錯了: " + e.message; }
         }
 
-        async function parsePdf(file) {
-            const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-            let str = "";
-            for(let i=1; i<=pdf.numPages; i++) {
-                const p = await pdf.getPage(i);
+        async function getTxt(f) {
+            const doc = await pdfjsLib.getDocument(await f.arrayBuffer()).promise;
+            let t = "";
+            for(let i=1; i<=doc.numPages; i++){
+                const p = await doc.getPage(i);
                 const c = await p.getTextContent();
-                str += " " + c.items.map(it => it.str).join(" ") + " ";
+                // 增加空白間距確保題號不被黏死
+                t += " " + c.items.map(it => it.str).join(" ") + " ";
             }
-            return str;
+            return t;
         }
 
         function show() {
-            const item = db[cur];
+            const it = quiz[idx];
             document.getElementById('mainCard').classList.remove('flipped');
-            document.getElementById('qContent').innerHTML = `<b>第 ${item.id} 題</b><br>${item.html}`;
-            document.getElementById('ansContent').innerText = item.ans;
-            document.getElementById('progress-info').innerText = `題目：${cur+1} / ${db.length}`;
+            document.getElementById('qHeader').innerText = `第 ${it.id} 題`;
+            document.getElementById('qContent').innerHTML = it.html;
+            document.getElementById('ansContent').innerText = it.ans;
+            document.getElementById('status').innerText = `總共 ${quiz.length} 題 | 目前：${idx+1}`;
         }
 
-        function nav(step) {
-            cur = Math.max(0, Math.min(db.length - 1, cur + step));
+        function move(s) {
+            idx = Math.max(0, Math.min(quiz.length - 1, idx + s));
             show();
         }
-
-        function reset() { location.reload(); }
     </script>
 </body>
 </html>
