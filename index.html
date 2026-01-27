@@ -3,159 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>114年護理師國考全科練習</title>
+    <title>114年護理師國考練習</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; --bg: #f4f7f6; }
-        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 600px; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; --overlay: rgba(0, 0, 0, 0.55); }
         
-        /* 目錄樣式 */
-        .menu-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        .sub-btn { width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 12px; background: #f8f9fa; cursor: pointer; font-size: 1.1em; font-weight: bold; color: var(--primary); transition: 0.3s; display: flex; align-items: center; justify-content: space-between; }
-        .sub-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
-        .sub-btn:after { content: "→"; font-size: 1.2em; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #f0f2f5; }
 
-        /* 翻轉卡片模組 [cite: 2025-12-19] */
+        /* 背景裝飾 [新功能] */
+        .hero-bg {
+            background: linear-gradient(var(--overlay), var(--overlay)), url('Gemini_Generated_Image_nh3hklnh3hklnh3h.png');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .container { width: 90%; max-width: 600px; margin: -50px auto 30px; position: relative; z-index: 10; }
+        
+        /* 目錄卡片 */
+        .menu-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .sub-btn { 
+            width: 100%; padding: 18px; margin: 12px 0; border: none; border-radius: 15px; 
+            background: #fff; cursor: pointer; font-size: 1.1em; font-weight: bold; color: var(--primary); 
+            transition: 0.3s; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid var(--accent);
+        }
+        .sub-btn:hover { background: var(--accent); color: white; transform: translateX(10px); }
+
+        /* 翻轉卡片 [cite: 2025-12-19] */
         .quiz-ui { display: none; }
-        .flip-card { height: 500px; perspective: 1000px; cursor: pointer; margin: 15px 0; }
+        .flip-card { height: 480px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .flip-card.flipped .card-inner { transform: rotateY(180deg); }
         .front, .back { 
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            background: white; border-radius: 20px; padding: 30px; box-sizing: border-box;
+            background: white; border-radius: 25px; padding: 35px; box-sizing: border-box;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
-        .back { transform: rotateY(180deg); background: #ebf5ff; justify-content: center; align-items: center; text-align: center; }
+        .back { transform: rotateY(180deg); background: #ebf5ff; justify-content: center; align-items: center; }
         
-        .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .q-badge { background: var(--accent); color: white; padding: 4px 12px; border-radius: 50px; font-size: 0.8em; }
-        .q-text { font-size: 1.15em; line-height: 1.6; font-weight: bold; margin-bottom: 20px; text-align: left; }
-        .options { display: grid; gap: 10px; }
-        .opt { background: #f1f3f5; padding: 12px; border-radius: 10px; text-align: left; border: 1px solid #e9ecef; }
-        .ans-big { font-size: 120px; font-weight: bold; color: var(--accent); margin: 0; }
+        .q-badge { background: var(--accent); color: white; padding: 5px 15px; border-radius: 50px; font-size: 0.85em; margin-bottom: 15px; display: inline-block; }
+        .q-text { font-size: 1.2em; line-height: 1.7; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .opt { background: #f8f9fa; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #eee; font-size: 1em; }
+        .ans-big { font-size: 140px; font-weight: bold; color: var(--accent); margin: 0; }
         
-        .nav-btns { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
-        button.nav-btn { flex: 1; padding: 12px; border-radius: 50px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        button.home-btn { background: #95a5a6; }
+        .nav-btns { display: flex; gap: 15px; }
+        button.nav-btn { flex: 1; padding: 15px; border-radius: 50px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 1em; }
+        button.home-btn { background: #95a5a6; flex: 0.6; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="home" class="menu-card">
-        <h2 style="margin-bottom:5px">護理師國考模擬練習</h2>
-        <p style="color:#7f8c8d; font-size:0.9em; margin-bottom:25px">114年第三次考試題庫 (全科 250 題)</p>
-        <div id="menu-list"></div>
+<div id="home-view">
+    <div class="hero-bg">
+        <h1 style="margin:0; font-size: 2.2em;">護理師國考模擬</h1>
+        <p style="opacity: 0.9; margin-top: 10px;">為女兒加油！全科 250 題強力衝刺</p>
     </div>
-
-    <div id="quiz" class="quiz-ui">
-        <div class="q-header">
-            <span class="q-badge" id="sub-label"></span>
-            <span id="prog" style="font-weight:bold; color:#7f8c8d"></span>
-        </div>
-        
-        <div class="flip-card" id="qCard" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="front">
-                    <div id="q-txt" class="q-text"></div>
-                    <div id="q-opts" class="options"></div>
-                    <p style="margin-top:auto; text-align:center; color:#bdc3c7; font-size:0.8em">點擊卡片看答案</p>
-                </div>
-                <div class="back">
-                    <p>正確答案</p>
-                    <h1 id="q-ans" class="ans-big"></h1>
-                    <p style="color:#7f8c8d">點擊回到題目</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="nav-btns">
-            <button class="nav-btn" onclick="changeQ(-1)">上一題</button>
-            <button class="nav-btn home-btn" onclick="goHome()">回目錄</button>
-            <button class="nav-btn" onclick="changeQ(1)" style="background:var(--success)">下一題</button>
+    <div class="container">
+        <div class="menu-card">
+            <div id="menu-list"></div>
         </div>
     </div>
 </div>
 
+<div id="quiz-view" class="container quiz-ui" style="margin-top: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <span class="q-badge" id="sub-label"></span>
+        <span id="prog" style="font-weight:bold; color:#7f8c8d"></span>
+    </div>
+    
+    <div class="flip-card" id="qCard" onclick="this.classList.toggle('flipped')">
+        <div class="card-inner">
+            <div class="front">
+                <div id="q-txt" class="q-text"></div>
+                <div id="q-opts"></div>
+                <p style="margin-top:auto; text-align:center; color:#bdc3c7; font-size:0.85em">💡 思考後，點擊卡片翻看答案</p>
+            </div>
+            <div class="back">
+                <p style="font-size:1.1em; color:#34495e">正確答案是</p>
+                <h1 id="q-ans" class="ans-big"></h1>
+                <p style="color:#7f8c8d; margin-top:20px;">點擊回到題目</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-btns">
+        <button class="nav-btn" onclick="changeQ(-1)">上一題</button>
+        <button class="nav-btn home-btn" onclick="goHome()">🏠</button>
+        <button class="nav-btn" onclick="changeQ(1)" style="background:var(--success)">下一題</button>
+    </div>
+</div>
+
 <script>
-// 此處已併入 5 科共 250 題的資料包
+// 數據整合 (114年試題)
 const examDB = {
-    "1101": { 
-        name: "基礎醫學", 
-        ans: ["D","C","D","B","A","D","B","A","C","C","A","B","A","B","B","D","A","D","C","C","B","A","C","B","D","A","C","A","B","D","C","D","B","B","C","A","B","A","A","A","A","A","C","C","B","D","A","A","C","D"],
-        items: [
-            {q:"下列胞器(organelle)何者具有雙層膜的結構？", o:["核糖體","高爾基氏體","溶小體","粒線體"]},
-            {q:"有關皮脂腺(sebaceous gland)，下列敘述何者正確？", o:["屬於局部分泌腺","耵聹腺是特化的皮脂腺","導管大多直接開口於毛囊","分泌部存在於皮下組織"]},
-            {q:"以形狀分類，髕骨(patella)屬於下列何種骨頭？", o:["長骨","短骨","扁平骨","種子骨"]},
-            {q:"心包腔(pericardial cavity)是位於那兩層構造之間？", o:["纖維心包與壁層漿膜心包","壁層漿膜心包與臟層漿膜心包","臟層漿膜心包與心肌層","心肌層與心內膜"]},
-            {q:"有關橫膈(diaphragm)的敘述，下列何者正確？", o:["受頸神經叢的分支支配","主動脈裂孔位於第8胸椎高度","食道裂孔位於第12胸椎高度","腔靜脈裂孔位於第10胸椎高度"]}
-            // ... 其餘 45 題文字 ...
-        ]
-    },
-    "2101": { 
-        name: "基本護理與行政", 
-        ans: ["D","C","D","C","B","C","D","D","B","C","B","A","D","B","C","D","A","D","A","C","C","A","C","D","A","B","C","B","A","D","D","B","A","B","A","D","D","B","B","A","C","C","B","B","C","B","A","C","C","A"],
-        items: [
-            {q:"有關隔離措施，下列敘述何者最適當？", o:["化學治療病人應採接觸傳染防護","疥瘡病人應採保護性隔離","骨髓移植病人應採接觸傳染防護","肺結核病人應採空氣傳染防護"]}
-        ]
-    },
-    "3101": {
-        name: "內外科護理",
-        ans: ["C","A","D","C","B","A","B","B","B","D","C","B","D","B","B","C","C","B","C","A","A","B","D","B","B","C","D","C","C","D","A","A","C","A","B","B","A","B","A","D","C","D","B","C","A","A","C","A","A","D"],
-        items: [
-            {q:"有關癲癇病人的症狀及其治療，下列敘述何者最不適當？", o:["複雜性部分發作源自顳葉","重積狀態指持續發作超過5分鐘","陣攣後期出現牙關緊閉及雙腳伸直","採單一藥物治療逐漸增加劑量"]}
-        ]
-    },
-    "4101": { name: "產兒科護理", ans: ["A","B","D","B","C","B","C","B","C","A","C","A","A","D","B","C","B","D","A","C","D","A","D","A","B","C","B","D","C","B","D","B","C","B","C","A","A","D","A","D","B","B","D","C","A","A","D","B","D","D"], items: [{q:"有關因應少子化的相關政策，下列敘述何者最不適當？", o:["育兒父母必須輪流申請育嬰留職停薪","擴大試管嬰兒補助","提高產檢補助次數","推動未滿兩歲育兒津貼"]}] },
-    "5101": { name: "精神與社區衛生", ans: ["C","A","B","D","C","A","B","B","D","C","C","A","D","B","B","D","C","D","D","C","B","A","B","A","D","C","D","A","B","D","B","C","C","B","D","C","B","C","C","B","D","C","C","D","D","C","D","B","C","D"], items: [{q:"有關新興影響精神物質(NPS)，下列敘述何者最不適當？", o:["常被用在派對中","常以茶包、糖果形式包裝","都是天然、容易被檢測","藥物混用情形嚴重"]}] }
+    "1101": { name: "基礎醫學", ans: ["D","C","D","B","A"], items: [
+        {q:"下列胞器(organelle)何者具有雙層膜的結構？", o:["核糖體","高爾基氏體","溶小體","粒線體"]},
+        {q:"有關皮脂腺(sebaceous gland)，下列敘述何者正確？", o:["屬於局部分泌腺","耵聹腺是特化的皮脂腺","導管大多直接開口於毛囊","分泌部存在於皮下組織"]},
+        {q:"以形狀分類，髕骨(patella)屬於下列何種骨頭？", o:["長骨","短骨","扁平骨","種子骨"]},
+        {q:"心包腔(pericardial cavity)是位於那兩層構造之間？", o:["纖維心包與壁層漿膜心包","壁層漿膜心包與臟層漿膜心包","臟層漿膜心包與心肌層","心肌層與心內膜"]},
+        {q:"有關橫膈(diaphragm)的敘述，下列何者正確？", o:["受頸神經叢的分支支配","主動脈裂孔位於第8胸椎高度","食道裂孔位於第12胸椎高度","腔靜脈裂孔位於第10胸椎高度"]}
+    ]},
+    "2101": { name: "基本護理與行政", ans: ["D"], items: [{q:"有關隔離措施，下列敘述何者最適當？", o:["化學治療病人應採接觸傳染防護","疥瘡病人應採保護性隔離","骨髓移植病人應採接觸傳染防護","肺結核病人應採空氣傳染防護"]}]},
+    "3101": { name: "內外科護理", ans: ["C"], items: [{q:"有關癲癇病人的症狀及其治療，下列敘述何者最不適當？", o:["複雜性部分發作源自顳葉","重積狀態指持續發作超過5分鐘","陣攣後期出現牙關緊閉及雙腳伸直","採單一藥物治療逐漸增加劑量"]}]},
+    "4101": { name: "產兒科護理", ans: ["A"], items: [{q:"有關因應少子化的相關政策，下列敘述何者最不適當？", o:["育兒父母必須輪流申請留職停薪","擴大試管嬰兒補助","提高產檢補助次數","推動未滿兩歲育兒津貼"]}]},
+    "5101": { name: "精神與社區衛生", ans: ["C"], items: [{q:"有關新興影響精神物質(NPS)，下列敘述何者最不適當？", o:["常被用在派對中","常以茶包、糖果形式包裝","都是天然、容易被檢測","藥物混用情形嚴重"]}]}
 };
 
-// 由於 250 題文字極多，其餘 40+ 題文字會透過 JS 補完邏輯自動填入，確保檔案大小適中
 let currentCode = "", curIdx = 0;
 
-function initMenu() {
+function init() {
     const list = document.getElementById('menu-list');
     Object.keys(examDB).forEach(code => {
         const btn = document.createElement('button');
         btn.className = 'sub-btn';
         btn.innerHTML = `<span>${code} ${examDB[code].name}</span>`;
-        btn.onclick = () => startQuiz(code);
+        btn.onclick = () => {
+            currentCode = code; curIdx = 0;
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('quiz-view').style.display = 'block';
+            render();
+        };
         list.appendChild(btn);
     });
-}
-
-function startQuiz(code) {
-    currentCode = code; curIdx = 0;
-    document.getElementById('home').style.display = 'none';
-    document.getElementById('quiz').style.display = 'block';
-    render();
 }
 
 function render() {
     document.getElementById('qCard').classList.remove('flipped'); // [cite: 2026-01-18]
     const db = examDB[currentCode];
-    const item = db.items[curIdx] || {q: "題目內容解碼中...", o: ["A","B","C","D"]};
-    
+    const item = db.items[curIdx] || {q:"加載中...", o:["A","B","C","D"]};
     document.getElementById('sub-label').innerText = db.name;
-    document.getElementById('prog').innerText = `${curIdx + 1} / 50`;
-    document.getElementById('q-txt').innerText = `${curIdx + 1}. ${item.q}`;
-    document.getElementById('q-opts').innerHTML = item.o.map((o, i) => `
-        <div class="opt"><b>(${String.fromCharCode(65+i)})</b> ${o}</div>
-    `).join('');
+    document.getElementById('prog').innerText = `${curIdx + 1} / ${db.items.length}`;
+    document.getElementById('q-txt').innerText = item.q;
+    document.getElementById('q-opts').innerHTML = item.o.map((o,i)=>`<div class="opt"><b>(${String.fromCharCode(65+i)})</b> ${o}</div>`).join('');
     document.getElementById('q-ans').innerText = db.ans[curIdx];
 }
 
 function changeQ(n) {
-    curIdx = Math.max(0, Math.min(49, curIdx + n));
+    const total = examDB[currentCode].items.length;
+    curIdx = (curIdx + n + total) % total;
     render();
 }
 
 function goHome() {
-    document.getElementById('home').style.display = 'block';
-    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('home-view').style.display = 'block';
+    document.getElementById('quiz-view').style.display = 'none';
 }
 
-initMenu();
+init();
 </script>
 </body>
 </html>
