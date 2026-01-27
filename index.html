@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>114年護理師國考練習 - 基礎醫學</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg: #f5f7fa;
+        }
+        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { max-width: 600px; width: 100%; }
+        .stats { margin-bottom: 20px; font-weight: bold; color: #555; }
+        
+        /* Flip Card Module */
+        .quiz-card {
+            perspective: 1000px;
+            width: 100%;
+            height: 400px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+        .quiz-card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px;
+            box-sizing: border-box;
+            background: white;
+            border-radius: 15px;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background: #eef6ff;
+            color: var(--primary);
+        }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .option-btn {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            transition: 0.3s;
+        }
+        .option-btn:hover { background: #f0f0f0; }
+        .nav-btns { display: flex; gap: 10px; justify-content: center; }
+        button { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; background: var(--primary); color: white; }
+        button:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
+
+    <h2>基礎醫學 (1101) 模擬測驗</h2>
+    <div class="stats" id="stats">進度: 1 / 50 | 正確次數: 0</div>
+
+    <div class="container">
+        <div class="quiz-card" id="quizCard" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front" id="questionContent">
+                    </div>
+                <div class="card-back">
+                    <h3>正確答案</h3>
+                    <h1 id="correctAnswerDisplay">?</h1>
+                    <p>點擊卡片回到題目</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-btns">
+            <button onclick="prevQuest()">上一題</button>
+            <button onclick="nextQuest()">下一題</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { id: 1, q: "1. 下列胞器(organelle)何者具有雙層膜的結構？", options: ["(A)核糖體", "(B)高爾基氏體", "(C)溶小體", "(D)粒線體"], ans: "D" },
+            { id: 2, q: "2. 有關皮脂腺(sebaceous gland)，下列敘述何者正確？", options: ["(A)屬於局部分泌腺", "(B)耵聹腺是特化的皮脂腺", "(C)皮脂腺導管大多直接開口於毛囊", "(D)分泌部存在於皮下組織"], ans: "C" },
+            { id: 3, q: "3. 以形狀分類，髕骨(patella)屬於下列何種骨頭？", options: ["(A)長骨", "(B)短骨", "(C)扁平骨", "(D)種子骨"], ans: "D" },
+            { id: 4, q: "4. 心包腔是位於那兩層構造之間？", options: ["(A)纖維性與漿膜性壁層", "(B)纖維性與胸膜壁層", "(C)漿膜性壁層與臟層", "(D)纖維性與胸壁間"], ans: "C" },
+            { id: 5, q: "5. 下列何者不屬於淋巴器官，無法製造免疫細胞？", options: ["(A)松果腺", "(B)胸腺", "(C)脾臟", "(D)扁桃腺"], ans: "A" }
+            // 更多題目可依據 PDF 內容持續新增...
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+
+        function updateCard() {
+            const card = document.getElementById('quizCard');
+            card.classList.remove('flipped');
+            
+            const item = questions[currentIndex];
+            document.getElementById('questionContent').innerHTML = `
+                <p style="font-size: 1.1em;">${item.q}</p>
+                <div class="options-grid">
+                    ${item.options.map(opt => `<div class="option-btn">${opt}</div>`).join('')}
+                </div>
+            `;
+            document.getElementById('correctAnswerDisplay').innerText = item.ans;
+            document.getElementById('stats').innerText = `進度: ${currentIndex + 1} / ${questions.length} | 點擊卡片查看答案`;
+        }
+
+        function nextQuest() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function prevQuest() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        // 初始化
+        updateCard();
+    </script>
+</body>
+</html>
