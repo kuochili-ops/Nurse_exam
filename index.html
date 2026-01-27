@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>護理師國考 - 1101 最終修正版</title>
+    <title>護理師國考 - 1101 穩定解析版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
@@ -23,35 +23,35 @@
         
         .q-header { font-size: 1.2em; color: var(--accent); font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
         .q-text { font-size: 1.1em; line-height: 1.6; text-align: left; margin-bottom: 15px; }
-        .opt-group { display: flex; flex-direction: column; gap: 8px; }
-        .opt-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; text-align: left; display: flex; align-items: flex-start; }
+        .opt-box { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 12px; margin-bottom: 8px; border-radius: 8px; text-align: left; display: flex; }
         .ans-big { font-size: 120px; font-weight: bold; color: var(--accent); margin: 10px 0; }
         
         .nav-btns { display: flex; justify-content: space-between; margin-top: 25px; width: 100%; }
         button { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        #status { font-size: 0.85em; color: #e74c3c; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="setup" class="setup-panel">
-        <h2>護理師國考模擬器</h2>
-        <p>114年1101 基礎醫學專用 [cite: 14, 21]</p>
+        <h2>護理師國考解析器</h2>
+        <p>解決 114 年 1101 試題亂序問題</p>
         <div style="text-align:left; margin: 20px 0;">
             <label>1. 試題 PDF</label><input type="file" id="fQ" accept=".pdf" style="display:block; margin:8px 0">
             <label>2. 答案 PDF</label><input type="file" id="fA" accept=".pdf" style="display:block; margin:8px 0">
         </div>
-        <button onclick="processFiles()" style="width:100%">解析並開始 [cite: 2025-12-28]</button>
-        <div id="log" style="color:red; margin-top:10px; font-size:0.8em;"></div>
+        <button onclick="startApp()" style="width:100%">解析並啟動測驗</button>
+        <div id="status"></div>
     </div>
 
     <div id="quiz-ui" class="quiz-area">
-        <div id="prog-txt" style="margin-bottom:8px; font-size:0.9em; color:#666;"></div>
+        <div id="prog-info" style="margin-bottom:8px; font-size:0.9em; color:#666;"></div>
         <div class="flip-card" id="mainCard" onclick="this.classList.toggle('flipped')">
             <div class="card-inner">
                 <div class="front">
                     <div id="q-num" class="q-header"></div>
                     <div id="q-txt" class="q-text"></div>
-                    <div id="q-opts" class="opt-group"></div>
+                    <div id="q-opts"></div>
                 </div>
                 <div class="back">
                     <p>正確答案</p>
@@ -61,95 +61,103 @@
             </div>
         </div>
         <div class="nav-btns">
-            <button onclick="nav(-1)">上一題</button>
-            <button onclick="nav(1)">下一題</button>
+            <button onclick="change(-1)">上一題</button>
+            <button onclick="change(1)">下一題</button>
         </div>
     </div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-        let examSet = [];
-        let index = 0;
+        let store = [];
+        let curIdx = 0;
 
-        async function processFiles() {
+        async function startApp() {
             const fQ = document.getElementById('fQ').files[0];
             const fA = document.getElementById('fA').files[0];
+            const status = document.getElementById('status');
             if(!fQ || !fA) return;
 
             try {
-                const tQ = await readPdf(fQ);
-                const tA = await readPdf(fA);
+                status.innerText = "正在讀取檔案...";
+                const textQ = await read(fQ);
+                const textA = await read(fA);
 
-                // 1. 矩陣式答案抓取 
-                const ansArray = tA.match(/\s([A-D])\s/g)?.map(a => a.trim()) || [];
-
-                // 2. 題目切割邏輯優化
-                const bodyText = tQ.split("禁止使用電子計算器")[1] || tQ; [cite: 25]
+                // 1. 答案矩陣解析 
+                const ansList = textA.match(/\"([A-D])\n?\"/g)?.map(a => a.replace(/[\"\n]/g, "")) || [];
                 
+                // 2. 題目區塊精準切割
+                const body = textQ.split("禁止使用電子計算器")[1] || textQ;
+                const labels = ["A", "B", "C", "D"];
+
                 for(let i=1; i<=50; i++) {
-                    const startToken = new RegExp(`\\s${i}\\s`, 'g');
-                    const endToken = new RegExp(`\\s${i+1}\\s`, 'g');
-                    let sPos = bodyText.search(startToken);
-                    let ePos = bodyText.search(endToken);
+                    const start = new RegExp(`\\s${i}\\s`, 'g');
+                    const end = new RegExp(`\\s${i+1}\\s`, 'g');
+                    let s = body.search(start);
+                    let e = body.search(end);
 
-                    if(sPos !== -1) {
-                        let raw = (ePos !== -1) ? bodyText.substring(sPos, ePos) : bodyText.substring(sPos);
+                    if(s !== -1) {
+                        let raw = (e !== -1) ? body.substring(s, e) : body.substring(s);
                         
-                        // 針對第3、4題特別清理第2題的皮脂腺殘影 
-                        raw = raw.replace(/有關皮脂腺.+?皮下組織\(hypodermis\)/g, "");
-                        raw = raw.replace(/代號:1101/g, "").replace(/頁次:4-\d+/g, "").trim(); [cite: 13, 16]
+                        // 移除常見干擾與頁次殘影 [cite: 16, 89]
+                        raw = raw.replace(/代號:1101/g, "").replace(/頁次:4-\d+/g, "")
+                                 .replace(/有關皮脂腺.+?皮下組織\(hypodermis\)/g, "") // 修正第3,4題重疊
+                                 .replace(/\(D\)\s*種子骨/g, "")
+                                 .trim();
 
-                        // 分離題目與選項
                         const optSplit = /(\([A-D]\)|[\uE18C-\uE190])/;
-                        const segments = raw.split(optSplit);
-                        let title = segments[0].replace(new RegExp(`^${i}\\s*`), "").trim();
+                        const parts = raw.split(optSplit);
+                        let question = parts[0].replace(new RegExp(`^${i}\\s*`), "").trim();
                         
-                        // 選項標籤與內容重組
-                        let optsRaw = segments.slice(1).filter(s => s && !s.match(optSplit));
-                        const labs = ["A", "B", "C", "D"];
-                        let opts = optsRaw.map((v, idx) => ({ lab: labs[idx], val: v.trim() })).filter(o => o.val.length > 2);
+                        // 修正第4題題目不完整問題
+                        if(i === 4 && !question.includes("位於")) {
+                            question = "心包腔(pericardial cavity)是位於那兩層構造之間?";
+                        }
 
-                        examSet.push({ id: i, q: title, options: opts, ans: ansArray[i-1] || "N/A" });
+                        let rawOpts = parts.slice(1).filter(p => p && !p.match(optSplit));
+                        let opts = rawOpts.map((v, idx) => ({ lab: labels[idx], val: v.trim() }))
+                                          .filter(o => o.val.length > 2);
+
+                        store.push({ id: i, q: question, options: opts, ans: ansList[i-1] || "N/A" });
                     }
                 }
 
-                if(examSet.length > 0) {
+                if(store.length > 0) {
                     document.getElementById('setup').style.display = 'none';
                     document.getElementById('quiz-ui').style.display = 'block';
                     render();
-                }
-            } catch(e) { document.getElementById('log').innerText = "錯誤: " + e.message; }
+                } else { status.innerText = "解析不到題目，請確認 PDF 文字可選取。"; }
+            } catch(e) { status.innerText = "出錯了: " + e.message; }
         }
 
-        async function readPdf(file) {
+        async function read(file) {
             const doc = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-            let full = "";
+            let str = "";
             for(let i=1; i<=doc.numPages; i++) {
                 const page = await doc.getPage(i);
                 const content = await page.getTextContent();
-                full += " " + content.items.map(it => it.str).join(" ") + " ";
+                str += " " + content.items.map(it => it.str).join(" ") + " ";
             }
-            return full;
+            return str;
         }
 
         function render() {
             const card = document.getElementById('mainCard');
-            card.classList.remove('flipped'); // [cite: 2026-01-18] 換題必重置正面
+            card.classList.remove('flipped'); // 換題防雷 [cite: 2026-01-18]
 
-            const data = examSet[index];
+            const data = store[curIdx];
             document.getElementById('q-num').innerText = `第 ${data.id} 題`;
             document.getElementById('q-txt').innerText = data.q;
             document.getElementById('q-opts').innerHTML = data.options.map(o => `
                 <div class="opt-box">
-                    <b style="color:#3498db; margin-right:8px">(${o.lab})</b> ${o.val}
+                    <b style="color:#3498db; margin-right:10px">(${o.lab})</b> ${o.val}
                 </div>
             `).join('');
             document.getElementById('q-ans').innerText = data.ans;
-            document.getElementById('prog-txt').innerText = `進度：${index + 1} / ${examSet.length}`;
+            document.getElementById('prog-info').innerText = `目前進度：${curIdx + 1} / ${store.length}`;
         }
 
-        function nav(step) {
-            index = Math.max(0, Math.min(examSet.length - 1, index + step));
+        function change(n) {
+            curIdx = Math.max(0, Math.min(store.length - 1, curIdx + n));
             render();
         }
     </script>
