@@ -3,138 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>114年護理師國考練習 - 基礎醫學</title>
+    <title>國考互動練習系統</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
-        :root {
-            --primary: #4a90e2;
-            --success: #28a745;
-            --danger: #dc3545;
-            --bg: #f5f7fa;
-        }
-        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { max-width: 600px; width: 100%; }
-        .stats { margin-bottom: 20px; font-weight: bold; color: #555; }
+        :root { --primary: #4a90e2; --bg: #f8f9fa; --success: #28a745; }
+        body { font-family: "PingFang TC", sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .setup-area { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; width: 100%; max-width: 500px; }
+        .hidden { display: none; }
         
-        /* Flip Card Module */
-        .quiz-card {
-            perspective: 1000px;
-            width: 100%;
-            height: 400px;
-            cursor: pointer;
-            margin-bottom: 20px;
+        /* Flip-board Module */
+        .quiz-container { width: 100%; max-width: 600px; perspective: 1000px; }
+        .flip-card { width: 100%; height: 450px; cursor: pointer; transition: transform 0.6s; transform-style: preserve-3d; position: relative; }
+        .flip-card.flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { 
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;
         }
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-radius: 15px;
-        }
-        .quiz-card.flipped .card-inner { transform: rotateY(180deg); }
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 30px;
-            box-sizing: border-box;
-            background: white;
-            border-radius: 15px;
-        }
-        .card-back {
-            transform: rotateY(180deg);
-            background: #eef6ff;
-            color: var(--primary);
-        }
+        .card-back { transform: rotateY(180deg); background: #f0f7ff; color: var(--primary); text-align: center; }
         
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .option-btn {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fff;
-            transition: 0.3s;
-        }
-        .option-btn:hover { background: #f0f0f0; }
-        .nav-btns { display: flex; gap: 10px; justify-content: center; }
-        button { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; background: var(--primary); color: white; }
-        button:disabled { background: #ccc; }
+        .option { margin: 8px 0; padding: 12px; border: 1px solid #ddd; border-radius: 8px; text-align: left; }
+        .nav { margin-top: 20px; display: flex; gap: 15px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; background: var(--primary); color: white; cursor: pointer; }
+        input[type="file"] { margin: 10px 0; }
+        .status { font-size: 0.9em; color: #666; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h2>基礎醫學 (1101) 模擬測驗</h2>
-    <div class="stats" id="stats">進度: 1 / 50 | 正確次數: 0</div>
+    <h2>國考互動測驗系統</h2>
 
-    <div class="container">
-        <div class="quiz-card" id="quizCard" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front" id="questionContent">
-                    </div>
-                <div class="card-back">
-                    <h3>正確答案</h3>
-                    <h1 id="correctAnswerDisplay">?</h1>
-                    <p>點擊卡片回到題目</p>
-                </div>
+    <div id="setup" class="setup-area">
+        <h3>第一步：上傳檔案</h3>
+        <label>1. 選擇試題 PDF (例如 114170_1101.pdf)</label><br>
+        <input type="file" id="questPdf" accept="application/pdf"><br>
+        <label>2. 選擇答案 PDF (例如 114170_ANS1101.pdf)</label><br>
+        <input type="file" id="ansPdf" accept="application/pdf"><br>
+        <button onclick="processFiles()" id="startBtn">開始解析並練習</button>
+        <p class="status" id="loadStatus"></p>
+    </div>
+
+    <div id="quiz-ui" class="quiz-container hidden">
+        <div id="progress">題目載入中...</div>
+        <div class="flip-card" id="mainCard" onclick="this.classList.toggle('flipped')">
+            <div class="card-front" id="qArea"></div>
+            <div class="card-back">
+                <h2>正確答案</h2>
+                <h1 id="aArea" style="font-size: 80px;"></h1>
+                <p>(點擊卡片回到題目)</p>
             </div>
         </div>
-
-        <div class="nav-btns">
-            <button onclick="prevQuest()">上一題</button>
-            <button onclick="nextQuest()">下一題</button>
+        <div class="nav">
+            <button onclick="changeQuestion(-1)">上一題</button>
+            <button onclick="changeQuestion(1)">下一題</button>
         </div>
     </div>
 
     <script>
-        const questions = [
-            { id: 1, q: "1. 下列胞器(organelle)何者具有雙層膜的結構？", options: ["(A)核糖體", "(B)高爾基氏體", "(C)溶小體", "(D)粒線體"], ans: "D" },
-            { id: 2, q: "2. 有關皮脂腺(sebaceous gland)，下列敘述何者正確？", options: ["(A)屬於局部分泌腺", "(B)耵聹腺是特化的皮脂腺", "(C)皮脂腺導管大多直接開口於毛囊", "(D)分泌部存在於皮下組織"], ans: "C" },
-            { id: 3, q: "3. 以形狀分類，髕骨(patella)屬於下列何種骨頭？", options: ["(A)長骨", "(B)短骨", "(C)扁平骨", "(D)種子骨"], ans: "D" },
-            { id: 4, q: "4. 心包腔是位於那兩層構造之間？", options: ["(A)纖維性與漿膜性壁層", "(B)纖維性與胸膜壁層", "(C)漿膜性壁層與臟層", "(D)纖維性與胸壁間"], ans: "C" },
-            { id: 5, q: "5. 下列何者不屬於淋巴器官，無法製造免疫細胞？", options: ["(A)松果腺", "(B)胸腺", "(C)脾臟", "(D)扁桃腺"], ans: "A" }
-            // 更多題目可依據 PDF 內容持續新增...
-        ];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
+        let quizData = [];
         let currentIndex = 0;
-        let score = 0;
 
-        function updateCard() {
-            const card = document.getElementById('quizCard');
+        async function extractText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            let fullText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                fullText += content.items.map(item => item.str).join(" ") + "\n";
+            }
+            return fullText;
+        }
+
+        async function processFiles() {
+            const qFile = document.getElementById('questPdf').files[0];
+            const aFile = document.getElementById('ansPdf').files[0];
+            const status = document.getElementById('loadStatus');
+
+            if (!qFile || !aFile) return alert("請同時上傳試題與答案檔！");
+
+            status.innerText = "正在讀取 PDF 內容...";
+            try {
+                const qText = await extractText(qFile);
+                const aText = await extractText(aFile);
+
+                // 解析答案 (對應題號與 A/B/C/D)
+                const ansMap = {};
+                const ansMatches = aText.match(/第(\d+)題\s+([A-D])/g) || aText.match(/(\d+)\s+([A-D])/g);
+                ansMatches?.forEach(m => {
+                    const parts = m.match(/(\d+).+([A-D])/);
+                    if(parts) ansMap[parts[1]] = parts[2];
+                });
+
+                // 解析題目 (根據題號切分)
+                for (let i = 1; i <= 50; i++) {
+                    const nextNum = i + 1;
+                    const regex = new RegExp(`\\s${i}\\s(.*?)(?=\\s${nextNum}\\s|$)`, 's');
+                    const match = qText.match(regex);
+                    if (match && ansMap[i]) {
+                        quizData.push({
+                            id: i,
+                            question: match[1].trim(),
+                            answer: ansMap[i]
+                        });
+                    }
+                }
+
+                if (quizData.length > 0) {
+                    document.getElementById('setup').classList.add('hidden');
+                    document.getElementById('quiz-ui').classList.remove('hidden');
+                    renderQuestion();
+                } else {
+                    alert("解析失敗，請確保 PDF 格式正確。");
+                }
+            } catch (e) {
+                console.error(e);
+                status.innerText = "解析出錯：" + e.message;
+            }
+        }
+
+        function renderQuestion() {
+            const item = quizData[currentIndex];
+            const card = document.getElementById('mainCard');
             card.classList.remove('flipped');
             
-            const item = questions[currentIndex];
-            document.getElementById('questionContent').innerHTML = `
-                <p style="font-size: 1.1em;">${item.q}</p>
-                <div class="options-grid">
-                    ${item.options.map(opt => `<div class="option-btn">${opt}</div>`).join('')}
-                </div>
-            `;
-            document.getElementById('correctAnswerDisplay').innerText = item.ans;
-            document.getElementById('stats').innerText = `進度: ${currentIndex + 1} / ${questions.length} | 點擊卡片查看答案`;
+            // 簡單處理選項換行預覽
+            const formattedQ = item.question.replace(/\([A-D]\)/g, '<br>$&');
+            
+            document.getElementById('qArea').innerHTML = `<h3>第 ${item.id} 題</h3><p>${formattedQ}</p>`;
+            document.getElementById('aArea').innerText = item.answer;
+            document.getElementById('progress').innerText = `目前進度：${currentIndex + 1} / ${quizData.length}`;
         }
 
-        function nextQuest() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                updateCard();
-            }
+        function changeQuestion(step) {
+            currentIndex += step;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= quizData.length) currentIndex = quizData.length - 1;
+            renderQuestion();
         }
-
-        function prevQuest() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCard();
-            }
-        }
-
-        // 初始化
-        updateCard();
     </script>
 </body>
 </html>
