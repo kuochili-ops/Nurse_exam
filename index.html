@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>護理師國考精準練習系統</title>
+    <title>國考練習系統 - 結構化修正版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --bg: #ecf0f1; }
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .setup-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        .setup-panel { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
         
-        /* Flip-board Module */
-        .quiz-area { display: none; width: 100%; max-width: 600px; }
-        .flip-card { height: 500px; perspective: 1000px; cursor: pointer; position: relative; }
+        /* Flip-board Module [cite: 2025-12-19] */
+        .quiz-area { display: none; width: 100%; max-width: 650px; }
+        .flip-card { height: 550px; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .flip-card.flipped .card-inner { transform: rotateY(180deg); }
         .front, .back { 
@@ -22,139 +22,144 @@
         }
         .back { transform: rotateY(180deg); background: #ebf5ff; display: flex; flex-direction: column; justify-content: center; text-align: center; }
         
-        .q-num { font-size: 1.4em; color: var(--accent); font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #eee; }
-        .q-text { font-size: 1.1em; line-height: 1.8; text-align: left; margin-bottom: 20px; }
-        .opt-item { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; margin: 10px 0; border-radius: 8px; text-align: left; }
-        .ans-val { font-size: 120px; font-weight: bold; color: var(--accent); margin: 0; }
+        .q-header { font-size: 1.3em; color: var(--accent); font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #eee; }
+        .q-text { font-size: 1.15em; line-height: 1.8; text-align: left; margin-bottom: 15px; }
+        .opt { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; margin: 8px 0; border-radius: 8px; text-align: left; display: block; }
+        .ans-big { font-size: 120px; font-weight: bold; color: var(--accent); margin: 0; }
         
-        .nav-tools { display: flex; justify-content: space-between; margin-top: 25px; width: 100%; }
+        .nav { display: flex; justify-content: space-between; margin-top: 25px; width: 100%; }
         button { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; }
-        #log-msg { color: #e74c3c; margin-top: 15px; font-size: 0.9em; }
+        .msg { color: #e74c3c; margin-top: 15px; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-    <div id="setup" class="setup-card">
-        <h2>國考測驗系統</h2>
-        <div style="text-align:left; margin: 20px 0;">
-            <label>1. 試題 PDF</label><input type="file" id="pdfQ" accept=".pdf" style="display:block; margin:10px 0">
-            <label>2. 答案 PDF</label><input type="file" id="pdfA" accept=".pdf" style="display:block; margin:10px 0">
+    <div id="setup" class="setup-panel">
+        <h2 style="margin-bottom:10px">114年護理師練習器</h2>
+        <p style="color:#666">請上傳您的 1101 試題與答案 PDF</p>
+        <div style="text-align:left; margin: 25px 0;">
+            <label><b>1. 試題 PDF：</b></label><input type="file" id="fQ" accept=".pdf" style="display:block; margin:10px 0">
+            <label><b>2. 答案 PDF：</b></label><input type="file" id="fA" accept=".pdf" style="display:block; margin:10px 0">
         </div>
-        <button onclick="initApp()" style="width:100%">解析檔案</button>
-        <div id="log-msg"></div>
+        <button onclick="runParser()" style="width:100%">解析並啟動測驗</button>
+        <div id="log" class="msg"></div>
     </div>
 
     <div id="quiz-ui" class="quiz-area">
-        <div id="prog-text" style="margin-bottom:10px; font-weight:bold; color:#7f8c8d;"></div>
+        <div id="prog" style="margin-bottom:10px; font-weight:bold; color:#7f8c8d;"></div>
         <div class="flip-card" id="mainCard" onclick="this.classList.toggle('flipped')">
             <div class="card-inner">
                 <div class="front">
-                    <div id="view-num" class="q-num"></div>
-                    <div id="view-q" class="q-text"></div>
+                    <div id="v-num" class="q-header"></div>
+                    <div id="v-q" class="q-text"></div>
+                    <div id="v-opts"></div>
                 </div>
                 <div class="back">
                     <p>正確答案</p>
-                    <h1 id="view-a" class="ans-val"></h1>
+                    <h1 id="v-ans" class="ans-big"></h1>
                     <p>點擊返回題目</p>
                 </div>
             </div>
         </div>
-        <div class="nav-tools">
-            <button onclick="change(-1)">上一題</button>
-            <button onclick="change(1)">下一題</button>
+        <div class="nav">
+            <button onclick="move(-1)">上一題</button>
+            <button onclick="move(1)">下一題</button>
         </div>
     </div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-        let dataSet = [];
-        let cursor = 0;
+        let store = [];
+        let ptr = 0;
 
-        async function initApp() {
-            const fQ = document.getElementById('pdfQ').files[0];
-            const fA = document.getElementById('pdfA').files[0];
-            if(!fQ || !fA) return;
-            document.getElementById('log-msg').innerText = "系統正在重新匹配題號與特殊符號...";
+        async function runParser() {
+            const qFile = document.getElementById('fQ').files[0];
+            const aFile = document.getElementById('fA').files[0];
+            const log = document.getElementById('log');
+            if(!qFile || !aFile) return;
+            log.innerText = "正在清除無效字符並對齊題號...";
 
             try {
-                const tQ = await getPdfText(fQ);
-                const tA = await getPdfText(fA);
+                const qRaw = await readPdf(qFile);
+                const aRaw = await readPdf(aFile);
 
-                // 1. 答案精準抓取 (搜尋: 第n題 X)
-                const ansObj = {};
-                const aReg = /第\s*(\d+)\s*題\s*([A-D])/g;
-                let m;
-                while((m = aReg.exec(tA)) !== null) { ansObj[parseInt(m[1])] = m[2]; }
+                // 1. 抓取標準答案 (鎖定「第n題 X」格式) [cite: 265, 266]
+                const ansSheet = {};
+                const aMatch = aRaw.match(/第\s*(\d+)\s*題\s*([A-D])/g);
+                aMatch?.forEach(m => {
+                    const d = m.match(/(\d+).+?([A-D])/);
+                    if(d) ansSheet[parseInt(d[1])] = d[2];
+                });
 
-                // 2. 題目切割：找尋 "數字+空格" 但排除頁碼
-                const startTag = "禁止使用電子計算器";
-                const body = tQ.substring(Math.max(0, tQ.indexOf(startTag) + startTag.length));
+                // 2. 題目清洗與切割
+                // 排除頁次、代號等干擾 [cite: 1, 4, 77]
+                const cleanBody = qRaw.replace(/代號\s*:\s*\d+/g, "")
+                                       .replace(/頁次\s*:\s*\d+-\d+/g, "")
+                                       .split("禁止使用電子計算器")[1] || qRaw;
 
-                // 為了防止抓到 52 題，我們以答案卷的題數為準（通常是 50）
-                const maxQ = Math.max(...Object.keys(ansObj).map(Number)) || 50;
-
-                for(let i=1; i<=maxQ; i++) {
-                    const currentMarker = new RegExp(`\\s${i}\\s`, 'g');
-                    const nextMarker = new RegExp(`\\s${i+1}\\s`, 'g');
+                // 3. 循序擷取 1-50 題 
+                for(let i=1; i<=50; i++) {
+                    const startToken = new RegExp(`\\s${i}\\s`, 'g');
+                    const endToken = new RegExp(`\\s${i+1}\\s`, 'g');
                     
-                    let sIdx = body.search(currentMarker);
-                    let eIdx = body.search(nextMarker);
+                    let s = cleanBody.search(startToken);
+                    let e = cleanBody.search(endToken);
                     
-                    if(sIdx !== -1) {
-                        let raw = (eIdx !== -1) ? body.substring(sIdx, eIdx) : body.substring(sIdx);
+                    if(s !== -1) {
+                        let chunk = (e !== -1) ? cleanBody.substring(s, e) : cleanBody.substring(s);
+                        // 移除題目編號本身
+                        let fullText = chunk.replace(new RegExp(`^\\s*${i}\\s+`), "").trim();
                         
-                        // 清洗：移除頁碼干擾與代號
-                        raw = raw.replace(/頁次：\d+-\d+/g, "").replace(/代號：\d+/g, "").trim();
-                        // 移除開頭題號數字
-                        let content = raw.replace(new RegExp(`^${i}\\s*`), "");
+                        // 處理選項 (A)-(D) 並換行顯示 [cite: 15, 16, 17, 18]
+                        const parts = fullText.split(/\s*(?=\([A-D]\))/);
+                        const question = parts[0];
+                        const options = parts.slice(1);
 
-                        // 處理特殊「空心框」符號 (U+E18C ~ U+E190)
-                        // 並轉化為 A, B, C, D 顯示
-                        const symbols = [//g, //g, //g, //g];
-                        const labels = ["(A)", "(B)", "(C)", "(D)"];
-                        
-                        symbols.forEach((reg, idx) => {
-                            content = content.replace(reg, `<div class="opt-item">${labels[idx]}`);
+                        store.push({
+                            id: i,
+                            q: question,
+                            opts: options,
+                            ans: ansSheet[i] || "N/A"
                         });
-                        
-                        // 處理傳統括號型 (A)
-                        content = content.replace(/(\([A-D]\))/g, '<div class="opt-item">$1');
-
-                        dataSet.push({ id: i, html: content, ans: ansObj[i] || "N/A" });
                     }
                 }
 
-                if(dataSet.length > 0) {
+                if(store.length > 0) {
                     document.getElementById('setup').style.display = 'none';
                     document.getElementById('quiz-ui').style.display = 'block';
                     render();
+                } else {
+                    log.innerText = "解析失敗，請確認 PDF 為可選取文字的版本。";
                 }
-            } catch(e) { document.getElementById('log-msg').innerText = "解析失敗：" + e.message; }
+            } catch(e) { log.innerText = "解析出錯: " + e.message; }
         }
 
-        async function getPdfText(file) {
+        async function readPdf(file) {
             const doc = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
             let str = "";
             for(let i=1; i<=doc.numPages; i++) {
-                const page = await doc.getPage(i);
-                const content = await page.getTextContent();
-                // 關鍵：將 PDF 的文字項重新串接
-                str += " " + content.items.map(it => it.str).join(" ") + " ";
+                const p = await doc.getPage(i);
+                const c = await p.getTextContent();
+                // 確保文字間有足夠空格
+                str += " " + c.items.map(it => it.str).join(" ") + " ";
             }
             return str;
         }
 
         function render() {
-            const item = dataSet[cursor];
-            document.getElementById('mainCard').classList.remove('flipped');
-            document.getElementById('view-num').innerText = `第 ${item.id} 題`;
-            document.getElementById('view-q').innerHTML = item.html;
-            document.getElementById('view-a').innerText = item.ans;
-            document.getElementById('prog-text').innerText = `目前進度：${cursor + 1} / ${dataSet.length}`;
+            const item = store[ptr];
+            const card = document.getElementById('mainCard');
+            card.classList.remove('flipped');
+            
+            document.getElementById('v-num').innerText = `第 ${item.id} 題`;
+            document.getElementById('v-q').innerText = item.q;
+            document.getElementById('v-opts').innerHTML = item.opts.map(o => `<div class="opt">${o}</div>`).join('');
+            document.getElementById('v-ans').innerText = item.ans;
+            document.getElementById('prog').innerText = `目前進度：${ptr + 1} / ${store.length}`;
         }
 
-        function change(step) {
-            cursor = Math.max(0, Math.min(dataSet.length - 1, cursor + step));
+        function move(step) {
+            ptr = Math.max(0, Math.min(store.length - 1, ptr + step));
             render();
         }
     </script>
