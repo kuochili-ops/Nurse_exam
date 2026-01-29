@@ -9,28 +9,27 @@
             --primary: #2c3e50; 
             --accent: #3498db; 
             --success: #2ecc71; 
-            --waiting: #95a5a6; 
-            --overlay: rgba(0, 0, 0, 0.5); 
+            --overlay: rgba(0, 0, 0, 0.55); 
         }
         body, html { margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #f4f7f6; color: var(--primary); }
         
         /* 視覺頂部區 [cite: 2026-01-18] */
         .hero { 
             background: linear-gradient(var(--overlay), var(--overlay)), url('Gemini_Generated_Image_nh3hklnh3hklnh3h.png'); 
-            background-size: cover; background-position: center; height: 32vh; 
+            background-size: cover; background-position: center; height: 35vh; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
         }
 
-        .container { width: 90%; max-width: 600px; margin: -50px auto 40px; }
+        .container { width: 92%; max-width: 600px; margin: -50px auto 40px; }
         .menu-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         
         .section-title { 
             color: #7f8c8d; 
             font-size: 0.85em; 
-            margin: 25px 0 12px 5px; 
+            margin: 10px 0 15px 5px; 
             font-weight: bold; 
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
         }
@@ -38,29 +37,31 @@
 
         .subject-link {
             display: flex; align-items: center; justify-content: space-between;
-            background: white; padding: 20px; margin-bottom: 15px; border-radius: 18px;
+            background: white; padding: 20px; margin-bottom: 12px; border-radius: 18px;
             text-decoration: none; color: var(--primary); font-weight: bold; font-size: 1.1em;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 6px solid var(--accent);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 8px solid var(--accent);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .subject-link:hover { transform: translateX(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .subject-link:hover { 
+            transform: translateX(10px); 
+            background: #f8fbff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
         
-        /* 完成狀態 [cite: 2025-12-19] */
-        .subject-link.done { border-left-color: var(--success); }
-        .subject-link.done:hover { background: #fafffa; }
+        /* 各科顏色區分 */
+        .color-1 { border-left-color: #3498db; } /* 基礎醫學 - 藍 */
+        .color-2 { border-left-color: #1abc9c; } /* 基護行政 - 綠 */
+        .color-3 { border-left-color: #e67e22; } /* 內外科 - 橘 */
+        .color-4 { border-left-color: #e91e63; } /* 產兒科 - 粉 */
+        .color-5 { border-left-color: #9b59b6; } /* 精神社區 - 紫 */
 
-        /* 待辦狀態 */
-        .subject-link.pending { border-left-color: var(--waiting); color: #bdc3c7; cursor: not-allowed; }
-        .subject-link.pending:hover { transform: none; box-shadow: none; }
-
-        .badge { font-size: 0.7em; padding: 5px 12px; border-radius: 50px; background: #f0f2f5; color: #7f8c8d; font-weight: normal; }
-        .done .badge { background: #e6fffa; color: #2ecc71; border: 1px solid #c6f6d5; }
+        .badge { font-size: 0.7em; padding: 5px 12px; border-radius: 50px; background: #e6fffa; color: #2ecc71; border: 1px solid #c6f6d5; font-weight: normal; }
 
         .footer { text-align: center; color: #bdc3c7; font-size: 0.9em; margin-top: 30px; line-height: 1.6; }
-        .stat-box { display: flex; justify-content: space-around; margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
-        .stat-item { text-align: center; }
-        .stat-num { display: block; font-size: 1.5em; color: var(--accent); font-weight: bold; }
-        .stat-label { font-size: 0.8em; color: #95a5a6; }
+        .stat-box { display: flex; justify-content: space-around; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-num { display: block; font-size: 1.4em; color: var(--primary); font-weight: bold; }
+        .stat-label { font-size: 0.75em; color: #95a5a6; }
     </style>
 </head>
 <body>
@@ -73,54 +74,52 @@
 <div class="container">
     <div class="menu-card">
         
-        <div class="section-title">已解鎖科目</div>
+        <div class="section-title">全科試題 (各 50 題)</div>
         
-        <a href="基礎醫學.html" class="subject-link done">
-            <span>🩺 1101 基礎醫學</span>
-            <span class="badge">50 題全收錄</span>
+        <a href="基礎醫學.html" class="subject-link color-1">
+            <span>📚 1101 基礎醫學</span>
+            <span class="badge">已校對</span>
         </a>
 
-        <a href="基本護理學與行政.html" class="subject-link done">
+        <a href="基本護理學與行政.html" class="subject-link color-2">
             <span>📋 2101 基護與行政</span>
-            <span class="badge">50 題全收錄</span>
+            <span class="badge">已校對</span>
         </a>
 
-        <a href="內外科.html" class="subject-link done">
+        <a href="內外科.html" class="subject-link color-3">
             <span>💊 3101 內外科護理學</span>
-            <span class="badge">50 題全收錄</span>
+            <span class="badge">已校對</span>
         </a>
 
-        <div class="section-title">即將解鎖</div>
-
-        <div class="subject-link pending">
+        <a href="產兒科護理學.html" class="subject-link color-4">
             <span>🍼 4101 產兒科護理學</span>
-            <span class="badge">整理中</span>
-        </div>
+            <span class="badge">已校對</span>
+        </a>
 
-        <div class="subject-link pending">
+        <a href="精神科與社區衛生護理學.html" class="subject-link color-5">
             <span>🧠 5101 精神與社區衛生</span>
-            <span class="badge">整理中</span>
-        </div>
+            <span class="badge">已校對</span>
+        </a>
 
         <div class="stat-box">
             <div class="stat-item">
-                <span class="stat-num">150</span>
-                <span class="stat-label">已上線題目</span>
+                <span class="stat-num">250</span>
+                <span class="stat-label">總題數</span>
             </div>
-            <div class="stat-item" style="border-left: 1px solid #eee; border-right: 1px solid #eee; padding: 0 20px;">
-                <span class="stat-num">3/5</span>
-                <span class="stat-label">完成科目</span>
+            <div class="stat-item" style="border-left: 1px solid #eee; border-right: 1px solid #eee;">
+                <span class="stat-num">5 / 5</span>
+                <span class="stat-label">考科完成度</span>
             </div>
             <div class="stat-item">
-                <span class="stat-num">100%</span>
-                <span class="stat-label">正確答案校對</span>
+                <span class="stat-num">2026</span>
+                <span class="stat-label">最新更新</span>
             </div>
         </div>
     </div>
     
     <div class="footer">
-        祝女兒考試順利！<br>
-        點擊上方已完成科目，即可開始翻卡練習。
+        祝考試順利，金榜題名！<br>
+        Powered by Gemini 3.0 Flash
     </div>
 </div>
 
