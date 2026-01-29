@@ -3,133 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>114年護理師國考-基礎醫學</title>
+    <title>護理師國考衝刺補給站</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; --overlay: rgba(0, 0, 0, 0.55); }
-        body, html { margin: 0; padding: 0; height: 100%; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #f0f2f5; }
-        .hero-bg { background: linear-gradient(var(--overlay), var(--overlay)), url('Gemini_Generated_Image_nh3hklnh3hklnh3h.png'); background-size: cover; background-position: center; height: 30vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .container { width: 95%; max-width: 650px; margin: -40px auto 30px; position: relative; z-index: 10; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-height: 400px; }
-        .flip-card { height: 480px; perspective: 1000px; cursor: pointer; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        .flip-card.flipped .card-inner { transform: rotateY(180deg); }
-        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: white; border-radius: 20px; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; }
-        .back { transform: rotateY(180deg); background: #ebf5ff; justify-content: center; align-items: center; text-align: center; }
-        .q-badge { background: var(--accent); color: white; padding: 5px 15px; border-radius: 50px; font-size: 0.9em; margin-bottom: 15px; display: inline-block; }
-        .q-text { font-size: 1.15em; line-height: 1.6; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
-        .opt { background: #f8f9fa; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid #eee; }
-        .ans-big { font-size: 130px; font-weight: bold; color: var(--accent); margin: 0; }
-        .nav-btns { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border-radius: 50px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; --overlay: rgba(0, 0, 0, 0.5); }
+        body, html { margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #f4f7f6; }
+        
+        /* 首頁 Hero 區域 [cite: 2026-01-18] */
+        .hero { 
+            background: linear-gradient(var(--overlay), var(--overlay)), url('Gemini_Generated_Image_nh3hklnh3hklnh3h.png'); 
+            background-size: cover; background-position: center; height: 35vh; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+        }
+
+        .container { width: 90%; max-width: 600px; margin: -40px auto 40px; }
+        
+        .menu-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        .subject-link {
+            display: flex; align-items: center; justify-content: space-between;
+            background: white; padding: 20px; margin-bottom: 15px; border-radius: 15px;
+            text-decoration: none; color: var(--primary); font-weight: bold; font-size: 1.1em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid var(--accent);
+            transition: 0.3s;
+        }
+        .subject-link:hover { transform: translateX(10px); background: var(--accent); color: white; }
+        .subject-link.done { border-left-color: var(--success); }
+        .subject-link.pending { border-left-color: #bdc3c7; color: #95a5a6; }
+
+        .status-badge { font-size: 0.7em; padding: 3px 10px; border-radius: 10px; background: #eee; color: #7f8c8d; }
+        .done .status-badge { background: var(--success); color: white; }
+
+        footer { text-align: center; color: #7f8c8d; font-size: 0.9em; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div class="hero-bg">
-    <h1 style="margin:0;">1101 基礎醫學</h1>
-    <p style="opacity: 0.9;">114年第三次護理師國考 · 完整 50 題</p>
+<div class="hero">
+    <h1 style="margin:0; font-size: 2.2em;">加油！準護理師</h1>
+    <p style="opacity: 0.9; margin-top: 10px;">114年第三次國考模擬測驗</p>
 </div>
 
 <div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span class="q-badge">單一選擇題</span>
-        <span id="prog" style="font-weight:bold; color:#7f8c8d"></span>
-    </div>
+    <div class="menu-card">
+        <h3 style="margin-top:0; color: #34495e;">選擇練習科目：</h3>
+        
+        <a href="基礎醫學.html" class="subject-link done">
+            <span>1101 基礎醫學</span>
+            <span class="status-badge">已完成 (50題)</span>
+        </a>
 
-    <div class="flip-card" id="qCard" onclick="this.classList.toggle('flipped')">
-        <div class="card-inner">
-            <div class="front">
-                <div id="q-txt" class="q-text"></div>
-                <div id="q-opts"></div>
-                <p style="margin-top:auto; text-align:center; color:#bdc3c7; font-size:0.8em">💡 點擊卡片翻看答案</p>
-            </div>
-            <div class="back">
-                <p>正確答案</p>
-                <h1 id="q-ans" class="ans-big"></h1>
-                <p style="color:#7f8c8d">點擊回到題目</p>
-            </div>
-        </div>
-    </div>
+        <a href="內外科.html" class="subject-link done">
+            <span>3101 內外科護理學</span>
+            <span class="status-badge">已完成 (50題)</span>
+        </a>
 
-    <div class="nav-btns">
-        <button onclick="changeQ(-1)">上一題</button>
-        <button onclick="changeQ(1)" style="background:var(--success)">下一題</button>
+        <a href="#" class="subject-link pending" onclick="alert('此科目題目整理中，請先練習前兩科喔！')">
+            <span>2101 基本護理學與行政</span>
+            <span class="status-badge">整理中</span>
+        </a>
+
+        <a href="#" class="subject-link pending" onclick="alert('此科目題目整理中，請先練習前兩科喔！')">
+            <span>4101 產兒科護理學</span>
+            <span class="status-badge">整理中</span>
+        </a>
+
+        <a href="#" class="subject-link pending" onclick="alert('此科目題目整理中，請先練習前兩科喔！')">
+            <span>5101 精神科與社區衛生</span>
+            <span class="status-badge">整理中</span>
+        </a>
     </div>
 </div>
 
-<script>
-const quizData = [
-    {q:"下列胞器(organelle)何者具有雙層膜的結構？", o:["核糖體(ribosome)","高爾基氏體(Golgi apparatus)","溶小體(lysosome)","粒線體(mitochondria)"], a:"D"},
-    {q:"有關皮脂腺(sebaceous gland)，下列敘述何者正確？", o:["屬於局部分泌腺","耵聹腺是特化的皮脂腺","導管大多直接開口於毛囊","分泌部存在於皮下組織"], a:"C"},
-    {q:"以形狀分類，髕骨(patella)屬於下列何種骨頭？", o:["長骨","短骨","扁平骨","種子骨"], a:"D"},
-    {q:"心包腔(pericardial cavity)是位於那兩層構造之間？", o:["纖維性心包膜與漿膜性心包膜壁層","纖維性心包膜與胸膜壁層","漿膜性心包膜壁層與臟層","纖維性心包膜與胸壁之間"], a:"C"},
-    {q:"下列何者不屬於淋巴器官，無法製造免疫細胞？", o:["松果腺","胸腺","脾臟","扁桃腺"], a:"A"},
-    {q:"女性排卵之前，體內那三種激素會大量上升？", o:["FSH、LH、黃體素","FSH、LH、動情素","LH、黃體素、動情素","FSH、黃體素、動情素"], a:"B"},
-    {q:"女性月經來潮時，子宮的那一層構造會剝落？", o:["子宮外膜","子宮肌膜","子宮內膜功能層","子宮內膜基底層"], a:"C"},
-    {q:"聽取主動脈半月瓣關閉心音之最佳位置？", o:["胸骨右側第二肋間","胸骨左側第二肋間","胸骨右側第五肋間","胸骨左側第五肋間"], a:"A"},
-    {q:"那器官同時接受腸繫膜上、下動脈血液供應？", o:["乙狀結腸","升結腸","降結腸","橫結腸"], a:"D"},
-    {q:"何者攜帶副交感神經支配淚腺與下頷下腺？", o:["顏面神經","舌咽神經","動眼神經","舌下神經"], a:"A"},
-    {q:"腳踝扭傷水腫時，史達林力(Starling forces)之變化何者正確？", o:["IF增加、c增加","IF降低、c增加","IF增加、c降低","IF降低、c降低"], a:"C"},
-    {q:"肌肉收縮短時間內提供能量的最主要來源？", o:["肌鈣蛋白","磷酸肌酸","肌紅蛋白","葡萄糖"], a:"B"},
-    {q:"脂肪組織中促進脂肪分解作用，何者最相關？", o:["腎上腺素 α1受體","腎上腺素 β1受體","腎上腺素 β2受體","腎上腺素 β3受體"], a:"D"},
-    {q:"健康成人睡眠 NREM 時期，不會出現何種腦波？", o:["α波","β波","θ波","δ波"], a:"A"},
-    {q:"有關 T4 和 T3 的比較，下列何者正確？", o:["主要分泌以 T4 為主","運輸以 T3 為主","T4 半衰期較短","T4 生物活性較高"], a:"A"},
-    {q:"何種蛋白是睪丸內與睪固酮結合的蛋白質？", o:["白蛋白","雄性素結合蛋白","性激素結合球蛋白","皮質類固醇結合球蛋白"], a:"B"},
-    {q:"ACE 抑制劑治療高血壓之作用機制？", o:["減少血管張力素II生成，降低醛固酮","減少血管張力素II生成，增加醛固酮","增加血管張力素II生成，增加醛固酮","增加血管張力素II生成，降低醛固酮"], a:"A"},
-    {q:"腎臟分泌氫離子與磷酸氫根結合排出，血漿淨反應為何？", o:["碳酸氫根增加、pH上升","碳酸氫根增加、pH下降","碳酸氫根減少、pH下降","碳酸氫根減少、pH上升"], a:"A"},
-    {q:"關於氣體擴散(diffusion)的描述，何者正確？", o:["氣體壓力與濃度無關","分子藉隨機運動穿過呼吸膜","氧氣擴散比二氧化碳快","呼吸膜厚度不影響速率"], a:"B"},
-    {q:"何種神經傳遞物質，對平滑肌細胞可能產生興奮或抑制？", o:["乙醯膽鹼","多巴胺","組織胺","血清素"], a:"A"},
-    {q:"下列何者不是花生四烯酸(AA)的代謝物？", o:["血栓素 A2","前列腺素 D2","白三烯素 D4","組織胺"], a:"D"},
-    {q:"SLE 所造成的血球數目低下，與何種過敏反應有關？", o:["第一型","第二型","第三型","第四型"], a:"B"},
-    {q:"關於慢性阻塞性肺病(COPD)，何者最適當？", o:["好發於不吸菸者","FEV1 會上升","FEV1/FVC 比值上升","包括肺氣腫與慢性支氣管炎"], a:"D"},
-    {q:"心肌梗塞後多久時間內，肉眼或顯微鏡下無明顯變化？", o:["12 小時後","4 小時內","1 天後","7 天後"], a:"B"},
-    {q:"何者是最常見的惡性淋巴瘤？", o:["伯基特氏淋巴瘤","何杰金氏淋巴瘤","結外邊緣區淋巴瘤","瀰漫性大 B 細胞淋巴瘤"], a:"D"},
-    {q:"家族腺瘤性息肉症主要是因為哪個基因突變？", o:["APC","WT1","MYC","BRCA1"], a:"A"},
-    {q:"燒瓶狀潰瘍(flask-shaped ulcer)之致病原因？", o:["梭狀芽胞桿菌滋長","吞入溶組織阿米巴","霍亂弧菌污染","胃酸侵犯力增強"], a:"B"},
-    {q:"有關乳房纖維腺瘤，何者最不適當？", o:["界限清楚的良性腫瘤","懷孕時可能變大","好發於 70 歲女性","與 MED12 基因有關"], a:"C"},
-    {q:"庫欣症候群病患，左右腎上腺變大且 ACTH 上升，病因為？", o:["腎上腺皮質腺瘤","腎上腺嗜鉻細胞瘤","腦下垂體前葉腫瘤","長期使用類固醇"], a:"C"},
-    {q:"FGFR3 基因突變造成之侏儒症為何？", o:["軟骨發育不全","纖維性發育不良","佝僂病","先天性成骨不全症"], a:"A"},
-    {q:"何者為前驅藥物(prodrug)，需酵素代謝才產生活性？", o:["phenobarbital","clopidogrel","rifampin","celecoxib"], a:"B"},
-    {q:"氣喘病人服用何種降血壓藥，最易誘發發作？", o:["amlodipine","prazosin","propranolol","clonidine"], a:"C"},
-    {q:"嗎啡(morphine)的止痛作用主要是活化何種受體？", o:["μ-opioid","δ-opioid","κ-opioid","NMDA"], a:"A"},
-    {q:"治療巴金森氏症藥物中，何者最不容易進入腦中？", o:["pramipexole","carbidopa","benztropine","amantadine"], a:"B"},
-    {q:"關於秋水仙素(colchicine)，下列何者錯誤？", o:["治療急性痛風","可口服","具抗發炎作用","懷孕婦女可使用"], a:"D"},
-    {q:"何者為醛固酮受體拮抗劑，常用於治療心衰竭？", o:["chlorothiazide","furosemide","eplerenone","tolvaptan"], a:"C"},
-    {q:"何者可活化中樞 α2 受體，減少交感活性以降血壓？", o:["clonidine","hydralazine","propranolol","losartan"], a:"A"},
-    {q:"關於質子幫浦抑制劑(PPIs)，下列何者錯誤？", o:["減少 clopidogrel 活性","不能用於 aspirin 潰瘍","應在飯前 30-60 分鐘服用","增加骨折風險"], a:"B"},
-    {q:"下列何者為尿崩症(diabetes insipidus)之治療藥物？", o:["vasopressin","somatotropin","urofollitropin","T3"], a:"A"},
-    {q:"何者為人源性單株抗體，用於免疫抑制誘導治療？", o:["alemtuzumab","methylprednisolone","rituximab","cyclosporine"], a:"A"},
-    {q:"泌尿道感染尿檢卻細菌培養陰性，原因最可能為何？", o:["病人正在使用抗生素","採集受到污染","檢體室溫保存","放置超過 24 小時"], a:"A"},
-    {q:"下列何種抗體常以雙聚體(dimer)方式分泌？", o:["IgA","IgG","IgM","IgE"], a:"A"},
-    {q:"面對胞外細菌感染，何種 CD4 T 細胞對嗜中性球驅化貢獻大？", o:["TH1","TH2","TH17","Treg"], a:"C"},
-    {q:"有關過敏反應，下列何者不是由抗體引起？", o:["異位性皮膚炎","青黴素過敏","接觸常春藤皮膚炎","RhD 新生兒溶血"], a:"C"},
-    {q:"關於細菌毒素與作用，下列敘述何者正確？", o:["霍亂毒素:細胞穿孔","百日咳毒素:活化T細胞","白喉毒素:抑制蛋白生成","炭疽毒素:抑制肌肉放鬆"], a:"C"},
-    {q:"有關腸內菌造成疾病的方式，何者最適當？", o:["傷寒不會人傳人","赤痢志賀氏菌需百個即可感染","鼠疫主要糞口傳染","肺炎克雷白氏菌只造成呼吸道疾病"], a:"B"},
-    {q:"主要經由人類身上「體蝨」叮咬傳播的細菌？", o:["回歸熱包氏螺旋體","伯納特柯克斯體","恙蟲病東方體","鸚鵡披衣菌"], a:"A"},
-    {q:"有關真菌分類與結構，何者最不適當？", o:["真核生物有粒線體","細胞膜含固醇","細胞壁成份為胜肽聚糖","具有細胞核"], a:"C"},
-    {q:"以蟲媒傳染的病毒，下列配對何者錯誤？", o:["登革病毒/斑蚊","茲卡病毒/蜱","屈公病毒/斑蚊","出血熱病毒/蜱"], a:"B"},
-    {q:"有關傳染性蛋白質(prion)特性，何者最適當？", o:["潛伏期數天","多具核酸","100度可清除","可由污染物或食物傳播"], a:"D"}
-];
+<footer>
+    <p>💡 點擊科目開始翻卡練習</p>
+</footer>
 
-let curIdx = 0;
-
-function render() {
-    document.getElementById('qCard').classList.remove('flipped');
-    const item = quizData[curIdx];
-    document.getElementById('prog').innerText = `${curIdx + 1} / 50`;
-    document.getElementById('q-txt').innerText = `${curIdx + 1}. ${item.q}`;
-    document.getElementById('q-opts').innerHTML = item.o.map((o, i) => `
-        <div class="opt"><b>(${String.fromCharCode(65+i)})</b> ${o}</div>
-    `).join('');
-    document.getElementById('q-ans').innerText = item.a;
-}
-
-function changeQ(n) {
-    curIdx = (curIdx + n + 50) % 50;
-    render();
-}
-
-render();
-</script>
 </body>
 </html>
